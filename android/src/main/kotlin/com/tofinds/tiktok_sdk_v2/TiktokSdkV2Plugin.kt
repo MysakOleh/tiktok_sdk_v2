@@ -71,12 +71,11 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
           state = state,
           codeVerifier = codeVerifier,
         )
-//        val authType = if (browserAuthEnabled == true) {
-//          AuthApi.AuthMethod.ChromeTab
-//        } else {
-//          AuthApi.AuthMethod.TikTokApp
-//        }
-        var authType = AuthApi.AuthMethod.ChromeTab
+        val authType = if (browserAuthEnabled == true) {
+          AuthApi.AuthMethod.ChromeTab
+        } else {
+          AuthApi.AuthMethod.TikTokApp
+        }
         authApi.authorize(request, authType)
         loginResult = result
       }
