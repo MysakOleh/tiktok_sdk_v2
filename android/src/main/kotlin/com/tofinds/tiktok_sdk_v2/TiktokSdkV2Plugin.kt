@@ -64,7 +64,7 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
           return
         }
 
-        val intent = Intent(Intent.ACTION_VIEW).apply {
+        val intent = Intent(Intent.ACTION_DEFAULT).apply {
           data = android.net.Uri.parse(uriString)
         }
 
@@ -181,7 +181,7 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
       } else {
         mapOf(
           "errorCode" to it.errorCode.toString(),
-          "errorMessage" to it.errorMsg.orEmpty()
+          "errorMessage" to it.errorMsg
         )
       }
     }
