@@ -82,7 +82,7 @@ class TikTokSDK {
         return;
       }
 
-      await _channel.invokeMapMethod<String, Object>(
+      await _channel.invokeMethod(
         'simulateOnNewIntent',
         <String, dynamic>{'deepLinkUrl': uri},
       );
