@@ -58,23 +58,7 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
         result.success(null)
       }
       "simulateOnNewIntent" -> {
-        val uriString = call.argument<String>("deepLinkUrl")
-        if (uriString == null) {
-          result.error("no_uri", "Missing 'deepLinkUrl' argument", null)
-          return
-        }
-
-        val intent = Intent(Intent.ACTION_DEFAULT).apply {
-          data = android.net.Uri.parse(uriString)
-        }
-
-        val resultMap = parseAuthResponse(intent)
-
-        if (resultMap != null) {
-          result.success(resultMap)
-        } else {
-          result.error("not_handled", "Intent was not handled", null)
-        }
+        result.success(codeVerifier)
       }
       "login" -> {
         val scope = call.argument<String>("scope")
@@ -92,12 +76,11 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
           state = state,
           codeVerifier = codeVerifier,
         )
-        val authType = AuthApi.AuthMethod.TikTokApp
-//        if (browserAuthEnabled == true) {
-//          AuthApi.AuthMethod.ChromeTab
-//        } else {
-//          AuthApi.AuthMethod.TikTokApp
-//        }
+        val authType = if (browserAuthEnabled == true) {
+          AuthApi.AuthMethod.ChromeTab
+        } else {
+          AuthApi.AuthMethod.TikTokApp
+        }
         authApi.authorize(request, authType)
         loginResult = result
       }
@@ -166,25 +149,6 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
       }
     }
     return true
-  }
-
-  private fun parseAuthResponse(intent: Intent): Map<String, String?>? {
-    return authApi.getAuthResponseFromIntent(intent, redirectUrl = redirectUrl)?.let {
-      val authCode = it.authCode
-      return if (authCode.isNotEmpty()) {
-        mapOf(
-          "authCode" to authCode,
-          "state" to it.state,
-          "grantedPermissions" to it.grantedPermissions,
-          "codeVerifier" to codeVerifier
-        )
-      } else {
-        mapOf(
-          "errorCode" to it.errorCode.toString(),
-          "errorMessage" to it.errorMsg
-        )
-      }
-    }
   }
 
 
