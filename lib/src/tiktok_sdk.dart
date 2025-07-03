@@ -76,18 +76,41 @@ class TikTokSDK {
     }
   }
 
-  Future<void> simulateOnNewIntent(String uri) async {
+  Future<TikTokLoginResult> simulateOnNewIntent(String uri) async {
     try {
-      if (Platform.isIOS) {
-        return;
-      }
-
-      await _channel.invokeMethod(
+      final result = await _channel.invokeMapMethod<String, Object>(
         'simulateOnNewIntent',
         <String, dynamic>{'deepLinkUrl': uri},
       );
-    } on PlatformException catch (e, s) {
-      print('❌ simulateOnNewIntent failed: ${e.message} $s');
+      if (result != null) {
+        final grantedPermissionsStringList = result["grantedPermissions"] != null
+            ? (result['grantedPermissions'] as String).split(',')
+            : [];
+        final grantedPermissions = grantedPermissionsStringList
+            .map((permission) => _fromScopeName(permission))
+            .whereType<TikTokPermissionType>()
+            .toSet();
+
+        return TikTokLoginResult(
+          status: result["authCode"] != null ? TikTokLoginStatus.success : TikTokLoginStatus.error,
+          authCode: result["authCode"] != null ? result["authCode"] as String : "",
+          codeVerifier: result["codeVerifier"] as String,
+          state: result["state"] as String?,
+          grantedPermissions: grantedPermissions,
+        );
+      } else {
+        return const TikTokLoginResult(
+          status: TikTokLoginStatus.error,
+        );
+      }
+    } on PlatformException catch (e) {
+      final status = e.code == "-2" ? TikTokLoginStatus.cancelled : TikTokLoginStatus.error;
+
+      return TikTokLoginResult(
+        status: status,
+        errorCode: e.code,
+        errorMessage: e.message,
+      );
     }
   }
 }

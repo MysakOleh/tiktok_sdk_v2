@@ -68,10 +68,10 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
           data = android.net.Uri.parse(uriString)
         }
 
-        val handled = handleAuthResponseFromIntent(intent)
+        val resultMap = parseAuthResponse(intent)
 
-        if (handled) {
-          result.success("Triggered onNewIntent with URI: $uriString")
+        if (resultMap != null) {
+          result.success(resultMap)
         } else {
           result.error("not_handled", "Intent was not handled", null)
         }
@@ -166,5 +166,24 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
     }
     return true
   }
+
+  private fun parseAuthResponse(intent: Intent): Map<String, Any>? {
+    val response = authApi.getAuthResponseFromIntent(intent, redirectUrl = redirectUrl) ?: return null
+
+    return if (response.authCode.isNotEmpty()) {
+      mapOf(
+        "authCode" to response.authCode,
+        "state" to response.state.orEmpty(),
+        "grantedPermissions" to response.grantedPermissions,
+        "codeVerifier" to codeVerifier
+      )
+    } else {
+      mapOf(
+        "errorCode" to response.errorCode.toString(),
+        "errorMessage" to response.errorMsg.orEmpty()
+      )
+    }
+  }
+
 
 }
