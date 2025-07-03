@@ -168,7 +168,7 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
     return true
   }
 
-  private fun parseAuthResponse(intent: Intent): Map<String, Any>? {
+  private fun parseAuthResponse(intent: Intent): Map<String, String?>? {
     return authApi.getAuthResponseFromIntent(intent, redirectUrl = redirectUrl)?.let {
       val authCode = it.authCode
       return if (authCode.isNotEmpty()) {
