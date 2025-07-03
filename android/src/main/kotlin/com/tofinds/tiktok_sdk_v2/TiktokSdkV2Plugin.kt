@@ -15,6 +15,7 @@ import com.tiktok.open.sdk.auth.AuthApi
 import com.tiktok.open.sdk.auth.AuthRequest
 import com.tiktok.open.sdk.auth.utils.PKCEUtils
 import java.util.concurrent.locks.LockSupport
+import android.util.Log
 
 /** FlutterTiktokSdkPlugin */
 class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.NewIntentListener {
