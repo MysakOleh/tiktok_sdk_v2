@@ -158,8 +158,8 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
           null,
         )
       }
-      return true
     }
+    return true
   }
 
 }
