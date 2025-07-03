@@ -150,7 +150,11 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
           "grantedPermissions" to it.grantedPermissions,
           "codeVerifier" to codeVerifier
         )
-        loginResult?.success(resultMap)
+        if (loginResult == null) {
+          Log.e("TikTokSdkV2Plugin", "loginResult is null, can't send success or error")
+        } else {
+          loginResult?.success(resultMap)
+        }
       } else {
         loginResult?.error(
           it.errorCode.toString(),
