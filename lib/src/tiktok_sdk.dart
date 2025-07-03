@@ -82,12 +82,12 @@ class TikTokSDK {
         return;
       }
 
-      await _channel.invokeMethod(
+      await _channel.invokeMapMethod<String, Object>(
         'simulateOnNewIntent',
         <String, dynamic>{'deepLinkUrl': uri},
       );
-    } on PlatformException catch (e) {
-      print('❌ simulateOnNewIntent failed: ${e.message}');
+    } on PlatformException catch (e, s) {
+      print('❌ simulateOnNewIntent failed: ${e.message} $s');
     }
   }
 }

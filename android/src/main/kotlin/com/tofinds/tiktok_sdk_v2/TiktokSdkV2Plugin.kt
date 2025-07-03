@@ -144,7 +144,7 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
     authApi.getAuthResponseFromIntent(intent, redirectUrl = redirectUrl)?.let {
       val authCode = it.authCode
       if (authCode.isNotEmpty()) {
-        val resultMap = mapOf(
+        var resultMap = mapOf(
           "authCode" to authCode,
           "state" to it.state,
           "grantedPermissions" to it.grantedPermissions,
@@ -160,7 +160,6 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
       }
       return true
     }
-    return false
   }
 
 }
