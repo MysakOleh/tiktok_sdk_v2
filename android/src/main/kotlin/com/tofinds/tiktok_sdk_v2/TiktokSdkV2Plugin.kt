@@ -14,6 +14,7 @@ import io.flutter.plugin.common.PluginRegistry
 import com.tiktok.open.sdk.auth.AuthApi
 import com.tiktok.open.sdk.auth.AuthRequest
 import com.tiktok.open.sdk.auth.utils.PKCEUtils
+import java.util.concurrent.locks.LockSupport
 
 /** FlutterTiktokSdkPlugin */
 class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.NewIntentListener {
@@ -54,6 +55,22 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
         clientKey = call.argument<String?>("clientKey")
         authApi = AuthApi(activity = activity)
         result.success(null)
+      }
+      "simulateOnNewIntent" -> {
+        val uriString = call.argument<String>("deepLinkUrl")
+        if (uriString == null) {
+          result.error("no_uri", "Missing 'uri' argument", null)
+          return
+        }
+
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+          data = android.net.Uri.parse(uriString)
+        }
+
+        // simulate the callback
+        onNewIntent(intent)
+
+        result.success("Triggered onNewIntent with URI: $uriString")
       }
       "login" -> {
         val scope = call.argument<String>("scope")
@@ -119,7 +136,7 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
     authApi.getAuthResponseFromIntent(intent, redirectUrl = redirectUrl)?.let {
       val authCode = it.authCode
       if (authCode.isNotEmpty()) {
-        var resultMap = mapOf(
+        val resultMap = mapOf(
           "authCode" to authCode,
           "state" to it.state,
           "grantedPermissions" to it.grantedPermissions,
