@@ -92,11 +92,12 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
           state = state,
           codeVerifier = codeVerifier,
         )
-        val authType = if (browserAuthEnabled == true) {
-          AuthApi.AuthMethod.ChromeTab
-        } else {
-          AuthApi.AuthMethod.TikTokApp
-        }
+        val authType = AuthApi.AuthMethod.TikTokApp
+//        if (browserAuthEnabled == true) {
+//          AuthApi.AuthMethod.ChromeTab
+//        } else {
+//          AuthApi.AuthMethod.TikTokApp
+//        }
         authApi.authorize(request, authType)
         loginResult = result
       }
@@ -168,20 +169,21 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
   }
 
   private fun parseAuthResponse(intent: Intent): Map<String, Any>? {
-    val response = authApi.getAuthResponseFromIntent(intent, redirectUrl = redirectUrl) ?: return null
+    return authApi.getAuthResponseFromIntent(intent, redirectUrl = redirectUrl)?.let {
 
-    return if (response.authCode.isNotEmpty()) {
-      mapOf(
-        "authCode" to response.authCode,
-        "state" to response.state.orEmpty(),
-        "grantedPermissions" to response.grantedPermissions,
-        "codeVerifier" to codeVerifier
-      )
-    } else {
-      mapOf(
-        "errorCode" to response.errorCode.toString(),
-        "errorMessage" to response.errorMsg.orEmpty()
-      )
+      return if (response.authCode.isNotEmpty()) {
+        mapOf(
+          "authCode" to response.authCode,
+          "state" to response.state.orEmpty(),
+          "grantedPermissions" to response.grantedPermissions,
+          "codeVerifier" to codeVerifier
+        )
+      } else {
+        mapOf(
+          "errorCode" to response.errorCode.toString(),
+          "errorMessage" to response.errorMsg.orEmpty()
+        )
+      }
     }
   }
 
