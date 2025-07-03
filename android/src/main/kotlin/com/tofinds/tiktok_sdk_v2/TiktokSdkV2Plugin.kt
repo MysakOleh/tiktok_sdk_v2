@@ -59,7 +59,7 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
       "simulateOnNewIntent" -> {
         val uriString = call.argument<String>("deepLinkUrl")
         if (uriString == null) {
-          result.error("no_uri", "Missing 'uri' argument", null)
+          result.error("no_uri", "Missing 'deepLinkUrl' argument", null)
           return
         }
 
@@ -67,10 +67,13 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
           data = android.net.Uri.parse(uriString)
         }
 
-        // simulate the callback
-        onNewIntent(intent)
+        val handled = handleAuthResponseFromIntent(intent)
 
-        result.success("Triggered onNewIntent with URI: $uriString")
+        if (handled) {
+          result.success("Triggered onNewIntent with URI: $uriString")
+        } else {
+          result.error("not_handled", "Intent was not handled", null)
+        }
       }
       "login" -> {
         val scope = call.argument<String>("scope")
@@ -133,6 +136,11 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
   }
 
   override fun onNewIntent(intent: Intent): Boolean {
+    return handleAuthResponseFromIntent(intent)
+  }
+
+
+  private fun handleAuthResponseFromIntent(intent: Intent): Boolean {
     authApi.getAuthResponseFromIntent(intent, redirectUrl = redirectUrl)?.let {
       val authCode = it.authCode
       if (authCode.isNotEmpty()) {
@@ -144,15 +152,15 @@ class TiktokSdkV2Plugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
         )
         loginResult?.success(resultMap)
       } else {
-        // Returns an error if authentication fails
         loginResult?.error(
           it.errorCode.toString(),
           it.errorMsg,
           null,
         )
       }
+      return true
     }
-    return true
-
+    return false
   }
+
 }
